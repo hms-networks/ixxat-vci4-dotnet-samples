@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ixxat.Vci4" Version="4.1.0" />
+    <PackageReference Include="Ixxat.Vci4" Version="4.1.2" />
   </ItemGroup>
 
   <ItemGroup>
