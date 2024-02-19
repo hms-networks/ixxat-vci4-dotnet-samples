@@ -50,6 +50,7 @@
 
 # Project files
 *.vcxproj.user
+*.csproj.user
 
 # Directories
 .vs/
@@ -58,4 +59,4 @@ bin/
 obj/
 Win32/
 x64/
-
+src/packages/
