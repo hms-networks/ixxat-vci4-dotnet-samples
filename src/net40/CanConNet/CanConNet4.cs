@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 //----------------------------------------------------------------------------
-// Summary  : Demo application for the IXXAT VCI .NET-API (for net40 target).
+// Summary  : Demo application for the IXXAT VCI .NET-API.
 //            This demo demonstrates the following VCI features
 //              - adapter selection
 //              - controller initialization
@@ -23,7 +23,7 @@ namespace CanConNet
   //##########################################################################
   /// <summary>
   ///   This class provides the entry point for the IXXAT VCI .NET API
-  ///   demo application. 
+  ///   demo application.
   /// </summary>
   //##########################################################################
   class CanConNet
@@ -33,37 +33,37 @@ namespace CanConNet
     /// <summary>
     ///   Reference to the used VCI device.
     /// </summary>
-    static IVciDevice mDevice;
+    static IVciDevice  mDevice;
 
     /// <summary>
     ///   Reference to the CAN controller.
     /// </summary>
-    static ICanControl mCanCtl;
+    static ICanControl  mCanCtl;
 
     /// <summary>
     ///   Reference to the CAN message communication channel.
     /// </summary>
-    static ICanChannel mCanChn;
+    static ICanChannel  mCanChn;
 
     /// <summary>
     ///   Reference to the CAN message scheduler.
     /// </summary>
-    static ICanScheduler mCanSched;
+    static ICanScheduler  mCanSched;
 
     /// <summary>
     ///   Reference to the message writer of the CAN message channel.
     /// </summary>
-    static ICanMessageWriter mWriter;
+    static ICanMessageWriter  mWriter;
 
     /// <summary>
     ///   Reference to the message reader of the CAN message channel.
     /// </summary>
-    static ICanMessageReader mReader;
+    static ICanMessageReader  mReader;
 
     /// <summary>
     ///   Thread that handles the message reception.
     /// </summary>
-    static Thread rxThread;
+    static Thread  rxThread;
 
     /// <summary>
     ///   Quit flag for the receive thread.
@@ -73,7 +73,7 @@ namespace CanConNet
     /// <summary>
     ///   Event that's set if at least one message was received.
     /// </summary>
-    static AutoResetEvent mRxEvent;
+    static AutoResetEvent  mRxEvent;
 
     #endregion
 
@@ -95,104 +95,114 @@ namespace CanConNet
       Console.WriteLine(" Quit the application with ESC\n");
 
       Console.Write(" Select Adapter...\n");
-      SelectDevice();
-      Console.WriteLine(" Select Adapter.......... OK !\n");
-
-      Console.Write(" Initialize CAN...\n");
-
-      if (!InitSocket(0))
+      if (SelectDevice())
       {
-        Console.WriteLine(" Initialize CAN............ FAILED !\n");
-      }
-      else
-      {
-        Console.WriteLine(" Initialize CAN............ OK !\n");
+        Console.WriteLine(" Select Adapter.......... OK !\n");
 
-        //
-        // start the receive thread
-        //
-        rxThread = new Thread(new ThreadStart(ReceiveThreadFunc));
-        rxThread.Start();
+        Console.Write(" Initialize CAN...\n");
 
-        //
-        // add a cyclic message when scheduler is available
-        //
-        ICanCyclicTXMsg cyclicMsg = null;
-        if (null != mCanSched)
+        if (!InitSocket(0))
         {
-          //
-          // start a cyclic object
-          //
-          cyclicMsg = mCanSched.AddMessage();
-
-          cyclicMsg.Identifier = 200;
-          cyclicMsg.CycleTicks = 100;
-          cyclicMsg.DataLength = 8;
-          cyclicMsg.SelfReceptionRequest = true;
-
-          for (Byte i = 0; i < cyclicMsg.DataLength; i++)
-          {
-            cyclicMsg[i] = i;
-          }
+          Console.WriteLine(" Initialize CAN............ FAILED !\n");
         }
-
-        //
-        // wait for keyboard hit transmit  CAN-Messages cyclically
-        //
-        ConsoleKeyInfo cki = new ConsoleKeyInfo();
-
-        Console.WriteLine(" Press T to transmit single message.");
-        Console.WriteLine(" Press C to start/stop cyclic message.");
-        Console.WriteLine(" Press ESC to exit.");
-        do
+        else
         {
-          while (!Console.KeyAvailable)
+          Console.WriteLine(" Initialize CAN............ OK !\n");
+
+          //
+          // start the receive thread
+          //
+          rxThread = new Thread(new ThreadStart(ReceiveThreadFunc));
+          rxThread.Start();
+
+          //
+          // add a cyclic message when schduler is available
+          //
+          ICanCyclicTXMsg  cyclicMsg = null;
+          if (null != mCanSched)
           {
-            Thread.Sleep(10);
-          }
-          cki = Console.ReadKey(true);
-          if (cki.Key == ConsoleKey.T)
-          {
-            TransmitData();
-          }
-          else if (cki.Key == ConsoleKey.C)
-          {
-            if (null != cyclicMsg)
+            //
+            // start a cyclic object
+            //
+            cyclicMsg = mCanSched.AddMessage();
+
+            cyclicMsg.AutoIncrementMode = CanCyclicTXIncMode.NoInc;
+            cyclicMsg.Identifier = 200;
+            cyclicMsg.CycleTicks = 100;
+            cyclicMsg.DataLength = 8;
+            cyclicMsg.SelfReceptionRequest = true;
+
+            for (Byte i = 0; i < cyclicMsg.DataLength; i++)
             {
-              if (cyclicMsg.Status != CanCyclicTXStatus.Busy)
-              {
-                cyclicMsg.Start(0);
-              }
-              else
-              {
-                cyclicMsg.Stop();
-              }
+              cyclicMsg[i] = i;
             }
           }
-        } while (cki.Key != ConsoleKey.Escape);
 
-        if (null != cyclicMsg)
-        {
           //
-          // stop cyclic message
+          // wait for keyboard hit transmit  CAN-Messages cyclically
           //
-          cyclicMsg.Stop();
+          ConsoleKeyInfo cki = new ConsoleKeyInfo();
+
+          Console.WriteLine(" Press T to transmit single message.");
+          if (null != mCanSched)
+          {
+            Console.WriteLine(" Press C to start/stop cyclic message.");
+          }
+          else
+          {
+            Console.WriteLine(" Cyclic messages not supported.");
+          }
+          Console.WriteLine(" Press ESC to exit.");
+          do
+          {
+            while (!Console.KeyAvailable)
+            {
+              Thread.Sleep(10);
+            }
+            cki = Console.ReadKey(true);
+            if (cki.Key == ConsoleKey.T)
+            {
+              TransmitData();
+            }
+            else if (cki.Key == ConsoleKey.C)
+            {
+              if (null != cyclicMsg)
+              {
+                if (cyclicMsg.Status != CanCyclicTXStatus.Busy)
+                {
+                  cyclicMsg.Start(0);
+                }
+                else
+                {
+                  cyclicMsg.Stop();
+                }
+              }
+            }
+          } while (cki.Key != ConsoleKey.Escape);
+
+          if (null != cyclicMsg)
+          {
+            //
+            // stop cyclic message
+            //
+            cyclicMsg.Stop();
+          }
+
+          //
+          // tell receive thread to quit
+          //
+          Interlocked.Exchange(ref mMustQuit, 1);
+
+          //
+          // Wait for termination of receive thread
+          //
+          rxThread.Join();
         }
 
-        //
-        // tell receive thread to quit
-        //
-        Interlocked.Exchange(ref mMustQuit, 1);
-
-        //
-        // Wait for termination of receive thread
-        //
-        rxThread.Join();
+        Console.Write("\n Free VCI - Resources...\n");
+        FinalizeApp();
+        Console.WriteLine(" Free VCI - Resources........ OK !\n");
       }
-
-      Console.Write("\n Free VCI - Resources...\n");
-      FinalizeApp();
-      Console.WriteLine(" Free VCI - Resources........ OK !\n");
 
       Console.Write(" Done");
       Console.ReadLine();
@@ -206,12 +216,14 @@ namespace CanConNet
     /// <summary>
     ///   Selects the first CAN adapter.
     /// </summary>
+    /// <return> true if succeeded, false otherwise</return>
     //************************************************************************
-    static void SelectDevice()
+    static bool SelectDevice()
     {
-      IVciDeviceManager deviceManager = null;
-      IVciDeviceList    deviceList    = null;
-      IEnumerator       deviceEnum    = null;
+      bool               succeeded     = false;
+      IVciDeviceManager  deviceManager = null;
+      IVciDeviceList     deviceList    = null;
+      IEnumerator        deviceEnum    = null;
 
       try
       {
@@ -236,17 +248,22 @@ namespace CanConNet
         deviceEnum.MoveNext();
         mDevice = deviceEnum.Current as IVciDevice;
 
-        //
-        // print bus type and controller type of first controller
-        //
-        IVciCtrlInfo info = mDevice.Equipment[0];
-        Console.Write(" BusType    : {0}\n", info.BusType);
-        Console.Write(" CtrlType   : {0}\n", info.ControllerType);
+        if (null != mDevice)
+        {
+          //
+          // print bus type and controller type of first controller
+          //
+          IVciCtrlInfo  info = mDevice.Equipment[0];
+          Console.Write(" BusType    : {0}\n", info.BusType);
+          Console.Write(" CtrlType   : {0}\n", info.ControllerType);
 
-        // show the device name and serial number
+          // show the device name and serial number
           string serialNumberText = mDevice.UniqueHardwareId.ToString() ?? "<device id not available>";
-        Console.Write(" Interface    : " + mDevice.Description + "\n");
-        Console.Write(" Serial number: " + serialNumberText + "\n");
+          Console.Write(" Interface    : " + mDevice.Description + "\n");
+          Console.Write(" Serial number: " + serialNumberText + "\n");
+
+          succeeded = true;
+        }
       }
       catch (Exception exc)
       {
@@ -269,6 +286,8 @@ namespace CanConNet
         //
         DisposeVciObject(deviceEnum);
       }
+
+      return succeeded;
     }
 
     #endregion
@@ -289,8 +308,11 @@ namespace CanConNet
     //************************************************************************
     static bool InitSocket(Byte canNo)
     {
-      IBalObject bal = null;
+      IBalObject  bal = null;
       bool succeeded = false;
+
+      if (null == mDevice)
+        return false;
 
       try
       {
@@ -304,69 +326,80 @@ namespace CanConNet
         //
         mCanChn = bal.OpenSocket(canNo, typeof(ICanChannel)) as ICanChannel;
 
-        //
-        // check if device supports the cyclic message scheduler
-        //
-        if (mCanChn.Features.HasFlag(CanFeatures.Scheduler))
+        if (null != mCanChn)
         {
           //
-          // Open the scheduler of the CAN controller
+          // check if device supports the cyclic message scheduler
           //
-          mCanSched = bal.OpenSocket(canNo, typeof(ICanScheduler)) as ICanScheduler;
+          if ((mCanChn.Features & CanFeatures.Scheduler) == CanFeatures.Scheduler)
+          {
+            //
+            // Open the scheduler of the CAN controller
+            //
+            mCanSched = bal.OpenSocket(canNo, typeof(ICanScheduler)) as ICanScheduler;
+            if (null != mCanSched)
+            {
+              // take scheduler into defined state (no messages, running)
+              mCanSched.Reset();
+              mCanSched.Resume();
+            }
+          }
+
+          // Initialize the message channel
+          mCanChn.Initialize(1024, 128, false);
+
+          // Get a message reader object
+          mReader = mCanChn.GetMessageReader();
+
+          // Initialize message reader
+          mReader.Threshold = 1;
+
+          // Create and assign the event that's set if at least one message
+          // was received.
+          mRxEvent = new AutoResetEvent(false);
+          mReader.AssignEvent(mRxEvent);
+
+          // Get a message wrtier object
+          mWriter = mCanChn.GetMessageWriter();
+
+          // Initialize message writer
+          mWriter.Threshold = 1;
+
+          // Activate the message channel
+          mCanChn.Activate();
+
+          //
+          // Open the CAN controller
+          //
+          mCanCtl = bal.OpenSocket(canNo, typeof(ICanControl)) as ICanControl;
+
+          if (null != mCanCtl)
+          {
+            // Initialize the CAN controller
+            mCanCtl.InitLine(CanOperatingModes.Standard |
+              CanOperatingModes.Extended |
+              CanOperatingModes.ErrFrame,
+              CanBitrate.Cia125KBit);
+
+            //
+            // print line status
+            //
+            Console.WriteLine(" LineStatus: {0}", mCanCtl.LineStatus);
+
+            // Set the acceptance filter for std identifiers
+            mCanCtl.SetAccFilter(CanFilter.Std,
+                                 (uint)CanAccCode.All, (uint)CanAccMask.All);
+
+            // Set the acceptance filter for ext identifiers
+            mCanCtl.SetAccFilter(CanFilter.Ext,
+                                 (uint)CanAccCode.All, (uint)CanAccMask.All);
+
+            // Start the CAN controller
+            mCanCtl.StartLine();
+
+            succeeded = true;
+          }
         }
-
-        // Initialize the message channel
-        mCanChn.Initialize(1024, 128, false);
-
-        // Get a message reader object
-        mReader = mCanChn.GetMessageReader();
-
-        // Initialize message reader
-        mReader.Threshold = 1;
-
-        // Create and assign the event that's set if at least one message
-        // was received.
-        mRxEvent = new AutoResetEvent(false);
-        mReader.AssignEvent(mRxEvent);
-
-        // Get a message wrtier object
-        mWriter = mCanChn.GetMessageWriter();
-
-        // Initialize message writer
-        mWriter.Threshold = 1;
-
-        // Activate the message channel
-        mCanChn.Activate();
-
-
-        //
-        // Open the CAN controller
-        //
-        mCanCtl = bal.OpenSocket(canNo, typeof(ICanControl)) as ICanControl;
-
-        // Initialize the CAN controller
-        mCanCtl.InitLine( CanOperatingModes.Standard | 
-          CanOperatingModes.Extended | 
-          CanOperatingModes.ErrFrame, 
-          CanBitrate.Cia125KBit);
-
-        //
-        // print line status
-        //
-        Console.WriteLine(" LineStatus: {0}", mCanCtl.LineStatus);
-
-        // Set the acceptance filter for std identifiers
-        mCanCtl.SetAccFilter(CanFilter.Std, 
-                             (uint)CanAccCode.All, (uint)CanAccMask.All);
-
-        // Set the acceptance filter for ext identifiers
-        mCanCtl.SetAccFilter(CanFilter.Ext, 
-                             (uint)CanAccCode.All, (uint)CanAccMask.All);
-
-        // Start the CAN controller
-        mCanCtl.StartLine();
-
-        succeeded = true;
       }
       catch (Exception exc)
       {
@@ -393,6 +426,9 @@ namespace CanConNet
     /// </summary>
     static void TransmitData()
     {
+      if (null == mWriter)
+        return;
+
       IMessageFactory factory = VciServer.Instance().MsgFactory;
       ICanMessage canMsg = (ICanMessage)factory.CreateMsg(typeof(ICanMessage));
 
@@ -479,7 +515,7 @@ namespace CanConNet
           {
             switch ((CanMsgError)canMessage[0])
             {
-              case CanMsgError.Stuff: 
+              case CanMsgError.Stuff:
                 Console.Write("\nstuff error...");
                 break;
               case CanMsgError.Form:
@@ -516,6 +552,10 @@ namespace CanConNet
     //************************************************************************
     static void ReadMultipleMsgsViaReadMessages()
     {
+      if ((null == mReader) ||
+          (null == mRxEvent))
+            return;
+
       ICanMessage[] msgArray;
 
       do
@@ -541,6 +581,10 @@ namespace CanConNet
     //************************************************************************
     static void ReadMsgsViaReadMessage()
     {
+      if ((null == mReader) ||
+          (null == mRxEvent))
+            return;
+
       ICanMessage canMessage;
 
       do
@@ -576,7 +620,7 @@ namespace CanConNet
 
     //************************************************************************
     /// <summary>
-    ///   Finalizes the application 
+    ///   Finalizes the application
     /// </summary>
     //************************************************************************
     static void FinalizeApp()
@@ -588,7 +632,7 @@ namespace CanConNet
       // Dispose message reader
       DisposeVciObject(mReader);
 
-      // Dispose message writer 
+      // Dispose message writer
       DisposeVciObject(mWriter);
 
       // Dispose CAN channel
@@ -610,13 +654,13 @@ namespace CanConNet
     ///   Reference to the object to be disposed.
     /// </param>
     /// <remarks>
-    ///   The VCI interfaces provide access to native driver resources. 
-    ///   Because the .NET garbage collector is only designed to manage memory, 
-    ///   but not native OS and driver resources the application itself is 
-    ///   responsible to release these resources via calling 
-    ///   IDisposable.Dispose() for the obects obtained from the VCI API 
-    ///   when these are no longer needed. 
-    ///   Otherwise native memory and resource leaks may occure.  
+    ///   The VCI interfaces provide access to native driver resources.
+    ///   Because the .NET garbage collector is only designed to manage memory,
+    ///   but not native OS and driver resources the application itself is
+    ///   responsible to release these resources via calling
+    ///   IDisposable.Dispose() for the obects obtained from the VCI API
+    ///   when these are no longer needed.
+    ///   Otherwise native memory and resource leaks may occure.
     /// </remarks>
     //************************************************************************
     static void DisposeVciObject(object obj)

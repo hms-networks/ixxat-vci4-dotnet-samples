@@ -126,6 +126,7 @@ namespace CanConNet
             //
             cyclicMsg = mCanSched.AddMessage();
 
+            cyclicMsg.AutoIncrementMode = CanCyclicTXIncMode.NoInc;
             cyclicMsg.Identifier = 200;
             cyclicMsg.CycleTicks = 100;
             cyclicMsg.DataLength = 8;
@@ -133,7 +134,7 @@ namespace CanConNet
 
             for (Byte i = 0; i < cyclicMsg.DataLength; i++)
             {
-                cyclicMsg[i] = i;
+              cyclicMsg[i] = i;
             }
           }
 
@@ -336,6 +337,12 @@ namespace CanConNet
             // Open the scheduler of the CAN controller
             //
             mCanSched = bal.OpenSocket(canNo, typeof(ICanScheduler)) as ICanScheduler;
+            if (null != mCanSched)
+            {
+              // take scheduler into defined state (no messages, running)
+              mCanSched.Reset();
+              mCanSched.Resume();
+            }
           }
 
           // Initialize the message channel

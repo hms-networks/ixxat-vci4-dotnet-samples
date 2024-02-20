@@ -33,7 +33,7 @@ namespace CanFdConNet
     /// <summary>
     ///   Reference to the used VCI device.
     /// </summary>
-    static IVciDevice?   mDevice;
+    static IVciDevice? mDevice;
 
     /// <summary>
     ///   Reference to the CAN controller.
@@ -125,6 +125,7 @@ namespace CanFdConNet
             //
             cyclicMsg = mCanSched.AddMessage();
 
+            cyclicMsg.AutoIncrementMode = CanCyclicTXIncMode.NoInc;
             cyclicMsg.Identifier = 200;
             cyclicMsg.CycleTicks = 100;
             cyclicMsg.DataLength = 32;
@@ -337,6 +338,12 @@ namespace CanFdConNet
             // Open the scheduler of the CAN controller
             //
             mCanSched = bal.OpenSocket(canNo, typeof(ICanScheduler2)) as ICanScheduler2;
+            if (null != mCanSched)
+            {
+              // take scheduler into defined state (no messages, running)
+              mCanSched.Reset();
+              mCanSched.Resume();
+            }
           }
 
           // Initialize the message channel
