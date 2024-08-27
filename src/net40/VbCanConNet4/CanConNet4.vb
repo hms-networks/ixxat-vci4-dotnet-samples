@@ -480,13 +480,11 @@ Module CanConNet4
                 Return
             End If
 
-            Dim msgArray() As ICanMessage
-
             Do While (0 = mMustQuit)
                 ' Wait 100 msec for a message reception
                 If (mRxEvent.WaitOne(100, False)) Then
+                    Dim msgArray() As ICanMessage = Nothing
                     If (mReader.ReadMessages(msgArray) > 0) Then
-
                         For Each entry In msgArray
                             PrintMessage(entry)
                         Next
