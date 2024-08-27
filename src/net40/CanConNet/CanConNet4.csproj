@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Ixxat.Vci4" Version="4.1.6" />
+    <PackageReference Include="Ixxat.Vci4" Version="4.1.7" />
   </ItemGroup>
 
 </Project>
