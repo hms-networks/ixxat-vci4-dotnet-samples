@@ -547,6 +547,12 @@ Module CanConNet4
             ' Dispose message writer 
             DisposeVciObject(mWriter)
 
+            // Dispose CAN scheduler
+            If (null! = mCanSched) Then
+            {
+                DisposeVciObject(mCanSched);
+            }
+
             ' Dispose CAN channel
             DisposeVciObject(mCanChn)
 

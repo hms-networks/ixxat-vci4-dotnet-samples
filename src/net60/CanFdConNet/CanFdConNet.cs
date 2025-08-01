@@ -644,6 +644,12 @@ namespace CanFdConNet
       // Dispose message writer
       DisposeVciObject(mWriter);
 
+      // Dispose CAN scheduler
+      if (null != mCanSched)
+      {
+        DisposeVciObject(mCanSched);
+      }
+
       // Dispose CAN channel
       DisposeVciObject(mCanChn);
 
