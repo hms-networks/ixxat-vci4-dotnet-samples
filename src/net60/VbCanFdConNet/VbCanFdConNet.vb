@@ -36,12 +36,12 @@ Module VbCanFdConNet
         ''' <summary>
         '''   Reference to the CAN controller.
         ''' </summary>
-        Private mCanCtl As Ixxat.Vci4.Bal.Can.ICanControl = Nothing
+        Private mCanCtl As Ixxat.Vci4.Bal.Can.ICanControl2 = Nothing
 
         ''' <summary>
         '''   Reference to the CAN message communication channel.
         ''' </summary>
-        Private mCanChn As Ixxat.Vci4.Bal.Can.ICanChannel = Nothing
+        Private mCanChn As Ixxat.Vci4.Bal.Can.ICanChannel2 = Nothing
 
         ''' <summary>
         '''   Reference to the CAN message scheduler.
@@ -233,7 +233,7 @@ Module VbCanFdConNet
                     ' show the device name and serial number
                     Dim serialNumberGuid As Object = mDevice.UniqueHardwareId
                     Dim serialNumberText = GetSerialNumberText(serialNumberGuid)
-                    Console.WriteLine(" Interface    : " + mDevice.Description.ToString().ToString())
+                    Console.WriteLine(" Interface    : " + mDevice.Description)
                     Console.WriteLine(" Serial number: " + serialNumberText)
                     succeeded = True
                 End If
@@ -524,7 +524,7 @@ Module VbCanFdConNet
         ''' </summary>
         Public Shared Sub ReceiveThreadFunc(context As Object)
 
-            Dim app As CanConNet = TryCast(context, CanConNet)
+            Dim app As CanFdConNet = TryCast(context, CanFdConNet)
             If app IsNot Nothing Then
                 app.ReadMsgsViaReadMessage()
             End If
