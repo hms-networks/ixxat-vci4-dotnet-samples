@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{67DAB1B4-8EB9-4129-AB4F-49E79E80B43B}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <StartupObject>VbCanConNet4.CanConNet4</StartupObject>
+    <StartupObject>VbCanConNet4.VbCanConNet4</StartupObject>
     <RootNamespace>VbCanConNet4</RootNamespace>
     <AssemblyName>VbCanConNet4</AssemblyName>
     <FileAlignment>512</FileAlignment>
@@ -51,10 +51,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Ixxat.Vci4, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Ixxat.Vci4.4.1.7\lib\net40\Ixxat.Vci4.dll</HintPath>
+      <HintPath>..\..\packages\Ixxat.Vci4.4.1.12\lib\net40\Ixxat.Vci4.dll</HintPath>
     </Reference>
     <Reference Include="Ixxat.Vci4.Contract, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Ixxat.Vci4.4.1.7\lib\net40\Ixxat.Vci4.Contract.dll</HintPath>
+      <HintPath>..\..\packages\Ixxat.Vci4.4.1.12\lib\net40\Ixxat.Vci4.Contract.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -116,11 +116,11 @@
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
-  <Import Project="..\..\packages\Ixxat.Vci4.4.1.7\build\net40\Ixxat.Vci4.targets" Condition="Exists('..\..\packages\Ixxat.Vci4.4.1.7\build\net40\Ixxat.Vci4.targets')" />
+  <Import Project="..\..\packages\Ixxat.Vci4.4.1.12\build\net40\Ixxat.Vci4.targets" Condition="Exists('..\..\packages\Ixxat.Vci4.4.1.12\build\net40\Ixxat.Vci4.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Ixxat.Vci4.4.1.7\build\net40\Ixxat.Vci4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Ixxat.Vci4.4.1.7\build\net40\Ixxat.Vci4.targets'))" />
+    <Error Condition="!Exists('..\..\packages\Ixxat.Vci4.4.1.12\build\net40\Ixxat.Vci4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Ixxat.Vci4.4.1.12\build\net40\Ixxat.Vci4.targets'))" />
   </Target>
 </Project>
