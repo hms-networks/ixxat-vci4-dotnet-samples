@@ -580,7 +580,7 @@ namespace Ixxat.Vci4.Samples.LinConNet
         else
         {
           // if the data did not start with "HW" convert only the GUID to a string
-          resultText = serialNumberGuid.ToString();
+          resultText = serialNumberGuid.ToString() ?? "<error getting serial>";
         }
       }
       else
