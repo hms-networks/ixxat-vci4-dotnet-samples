@@ -177,13 +177,13 @@ namespace Ixxat.Vci4.Samples.LinConNet
           // print bus type and controller type of first controller
           //
           IVciCtrlInfo? info = mDevice.Equipment[0];
-          Console.Write(" BusType    : {0}\n", info.BusType);
-          Console.Write(" CtrlType   : {0}\n", info.ControllerType);
+          Console.WriteLine(" BusType    : {0}", info.BusType);
+          Console.WriteLine(" CtrlType   : {0}", info.ControllerType);
 
           // show the device name and serial number
           string serialNumberText = mDevice.UniqueHardwareId.ToString() ?? "<device id not available>";
-          Console.Write(" Interface    : " + mDevice.Description + "\n");
-          Console.Write(" Serial number: " + serialNumberText + "\n");
+          Console.WriteLine(" Interface    : " + mDevice.Description);
+          Console.WriteLine(" Serial number: " + serialNumberText);
 
           succeeded = true;
         }
