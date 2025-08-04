@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This repository contains a set sample programs which demonstrates the 
+This repository contains a set sample programs which demonstrates the
 functionality of the Ixxat.Vci4 Nuget package,
 for details see https://www.nuget.org/packages/Ixxat.Vci4
 
-VCI4 (VCI4 = Virtual Communication Interface Version 4) is a driver/application framework to 
+VCI4 (VCI4 = Virtual Communication Interface Version 4) is a driver/application framework to
 access HMS CAN or LIN interfaces on the Windows OS,
 for details see https://www.ixxat.com/technical-support/support/windows-driver-software
 
@@ -33,16 +33,24 @@ Simple console examples demonstrates the use of the older (CAN only) APIs.
 This example is provided as reference and it is advised to use the new CAN FD APIs
 as they support pure CAN interfaces, too.
 
-#### CanFdConNet 
+#### VbCanConNet4
 
-Simple console examples like CanConNet, but uses the current APIs which 
+As CanConNet, but in Vb.NET instead of C#.
+
+#### CanFdConNet
+
+Simple console examples like CanConNet, but uses the current APIs which
 also supports CAN FD.
-The new APIs differ in how (CAN FD) bitrates are specified and 
-supports a CAN FD data frame type. As CAN is a subset of CAN FD the 
-new APIs support pure CAN interfaces, too, and you can specify CAN bitrates without 
+The new APIs differ in how (CAN FD) bitrates are specified and
+supports a CAN FD data frame type. As CAN is a subset of CAN FD the
+new APIs support pure CAN interfaces, too, and you can specify CAN bitrates without
 BRS (bitrate switch) or read/write normal CAN frames.
 
-#### LinConNet 
+#### VbCanFdConNet
+
+As CanFdConNet, but in Vb.NET instead of C#.
+
+#### LinConNet
 
 Simple console examples to demonstrate the APIs to access Lin interfaces.
 
@@ -54,6 +62,6 @@ CAN device is plugged in/plugged out.
 
 ## References
 
-[CAN]     https://en.wikipedia.org/wiki/CAN_bus  
-[CAN FD]  https://en.wikipedia.org/wiki/CAN_FD  
-[Lin]     https://en.wikipedia.org/wiki/Local_Interconnect_Network  
+[CAN]     https://en.wikipedia.org/wiki/CAN_bus
+[CAN FD]  https://en.wikipedia.org/wiki/CAN_FD
+[Lin]     https://en.wikipedia.org/wiki/Local_Interconnect_Network
