@@ -6,23 +6,22 @@
 '              - controller initialization
 '              - creation of a message channel
 '              - transmission/reception of CAN messages
-' Copyright: Copyright(C) 2016-2023 HMS Technology Center Ravensburg GmbH, 
+' Copyright: Copyright(C) 2016-2023 HMS Technology Center Ravensburg GmbH,
 '            all rights reserved
 '----------------------------------------------------------------------------
 
 Imports System
-Imports System.Text
 Imports System.Collections
 Imports System.Threading
 Imports Ixxat.Vci4
 Imports Ixxat.Vci4.Bal
 Imports Ixxat.Vci4.Bal.Can
 
-Module CanConNet4
+Module VbCanConNet4
 
-    '''' <summary>
-    ''''   Class holding application logic
-    '''' </summary>
+    ''' <summary>
+    '''   Class holding application logic
+    ''' </summary>
     Public Class CanConNet
 
 #Region "Member variables"
@@ -107,9 +106,6 @@ Module CanConNet4
                     '
                     Dim cyclicMsg As ICanCyclicTXMsg = Nothing
                     If mCanSched IsNot Nothing Then
-                        '
-                        ' start a cyclic object
-                        '
                         cyclicMsg = mCanSched.AddMessage()
 
                         cyclicMsg.AutoIncrementMode = CanCyclicTXIncMode.NoInc
@@ -118,8 +114,7 @@ Module CanConNet4
                         cyclicMsg.DataLength = 8
                         cyclicMsg.SelfReceptionRequest = True
 
-                        Dim i As Byte
-                        For i = 0 To cyclicMsg.DataLength - 1
+                        For i As Byte = 0 To cyclicMsg.DataLength - 1
                             cyclicMsg(i) = i
                         Next
                     End If
@@ -144,11 +139,11 @@ Module CanConNet4
                         Loop
 
                         cki = Console.ReadKey(True)
-                        If (cki.Key = ConsoleKey.T) Then
+                        If cki.Key = ConsoleKey.T Then
                             TransmitData()
-                        ElseIf (cki.Key = ConsoleKey.C) Then
+                        ElseIf cki.Key = ConsoleKey.C Then
                             If cyclicMsg IsNot Nothing Then
-                                If (cyclicMsg.Status <> CanCyclicTXStatus.Busy) Then
+                                If cyclicMsg.Status <> CanCyclicTXStatus.Busy Then
                                     cyclicMsg.Start(0)
                                     Console.WriteLine(" Cyclic message started.")
                                 Else
@@ -159,11 +154,10 @@ Module CanConNet4
                         End If
                     Loop
 
-
+                    '
+                    ' stop cyclic message
+                    '
                     If cyclicMsg IsNot Nothing Then
-                        '
-                        ' stop cyclic message
-                        '
                         cyclicMsg.Stop()
                     End If
 
@@ -194,6 +188,7 @@ Module CanConNet4
         ''' <summary>
         '''   Selects the first CAN adapter.
         ''' </summary>
+        ''' <return> true if succeeded, false otherwise</return>
         Private Function SelectDevice() As Boolean
             Dim succeeded As Boolean = False
             Dim deviceManager As IVciDeviceManager = Nothing
@@ -224,13 +219,13 @@ Module CanConNet4
 
                 If mDevice IsNot Nothing Then
                     '
-                    ' print bus type And controller type of first controller
+                    ' print bus type and controller type of first controller
                     '
                     Dim info As IVciCtrlInfo = mDevice.Equipment(0)
                     Console.WriteLine(" BusType    : {0}", info.BusType)
                     Console.WriteLine(" CtrlType   : {0}", info.ControllerType)
 
-                    ' show the device name And serial number
+                    ' show the device name and serial number
                     Dim serialNumberText As String = If(mDevice.UniqueHardwareId.ToString(), "<device id not available>")
                     Console.WriteLine(" Interface    : " + mDevice.Description)
                     Console.WriteLine(" Serial number: " + serialNumberText)
@@ -241,17 +236,17 @@ Module CanConNet4
                 Console.WriteLine("Error: " + exc.Message)
             Finally
                 '
-                ' Dispose device manager  it's no longer needed.
+                ' Dispose device manager
                 '
                 DisposeVciObject(deviceManager)
 
                 '
-                ' Dispose device list  it's no longer needed.
+                ' Dispose device list
                 '
                 DisposeVciObject(deviceList)
 
                 '
-                ' Dispose device list  it's no longer needed.
+                ' Dispose device list
                 '
                 DisposeVciObject(deviceEnum)
             End Try
@@ -265,28 +260,28 @@ Module CanConNet4
 
         ''' <summary>
         '''   Opens the specified socket, creates a message channel, initializes
-        '''   And starts the CAN controller.
+        '''   and starts the CAN controller.
         ''' </summary>
         ''' <param name="canNo">
         '''   Number of the CAN controller to open.
         ''' </param>
         ''' <returns>
-        '''   A value indicating if the socket initialization succeeded Or failed.
+        '''   A value indicating if the socket initialization succeeded or failed.
         ''' </returns>
         Private Function InitSocket(canNo As Byte) As Boolean
-            Dim Bal As IBalObject = Nothing
+            Dim bal As IBalObject = Nothing
             Dim succeeded As Boolean = False
 
             Try
                 '
                 ' Open bus access layer
                 '
-                Bal = mDevice.OpenBusAccessLayer()
+                bal = mDevice.OpenBusAccessLayer()
 
                 '
                 ' Open a message channel for the CAN controller
                 '
-                mCanChn = Bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanChannel))
+                mCanChn = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanChannel))
 
                 If mCanChn IsNot Nothing Then
                     '
@@ -296,7 +291,7 @@ Module CanConNet4
                         '
                         ' Open the scheduler of the CAN controller
                         '
-                        mCanSched = Bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanScheduler))
+                        mCanSched = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanScheduler))
                         If mCanSched IsNot Nothing Then
                             ' take scheduler into defined state (no messages, running)
                             mCanSched.Reset()
@@ -314,7 +309,7 @@ Module CanConNet4
                     ' Initialize message reader
                     mReader.Threshold = 1
 
-                    ' Create And assign the event that's set if at least one message
+                    ' Create and assign the event that's set if at least one message
                     ' was received.
                     mRxEvent = New AutoResetEvent(False)
                     mReader.AssignEvent(mRxEvent)
@@ -331,7 +326,7 @@ Module CanConNet4
                     '
                     ' Open the CAN controller
                     '
-                    mCanCtl = Bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanControl))
+                    mCanCtl = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanControl))
                     If mCanCtl IsNot Nothing Then
                         ' Initialize the CAN controller
                         mCanCtl.InitLine(CanOperatingModes.Standard Or
@@ -364,7 +359,7 @@ Module CanConNet4
                 '
                 ' Dispose bus access layer
                 '
-                DisposeVciObject(Bal)
+                DisposeVciObject(bal)
             End Try
 
             Return succeeded
@@ -392,8 +387,7 @@ Module CanConNet4
             canMsg.DataLength = 8
             canMsg.SelfReceptionRequest = True  ' show this message in the console window
 
-            Dim i As Byte
-            For i = 0 To canMsg.DataLength - 1
+            For i As Byte = 0 To canMsg.DataLength - 1
                 canMsg(i) = i
             Next
 
@@ -415,29 +409,28 @@ Module CanConNet4
                 ' show data frames
                 '
                 Case CanMsgFrameType.Data
-                    If (Not canMessage.RemoteTransmissionRequest) Then
+                    If Not canMessage.RemoteTransmissionRequest Then
                         Console.Write("Time: {0,10}  ID: {1,3:X}  DLC: {2,1}  Data:",
                             canMessage.TimeStamp,
                             canMessage.Identifier,
                             canMessage.DataLength)
 
-                        Dim index As Integer
-                        For index = 0 To canMessage.DataLength - 1
+                        For index As Integer = 0 To canMessage.DataLength - 1
                             Console.Write(" {0,2:X}", canMessage(index))
                         Next
                         Console.Write(vbLf)
                     Else
                         Console.WriteLine("Time: {0,10}  ID: {1,3:X}  DLC: {2,1}  Remote Frame",
-                            canMessage.TimeStamp,
-                            canMessage.Identifier,
-                            canMessage.DataLength)
+                        canMessage.TimeStamp,
+                        canMessage.Identifier,
+                        canMessage.DataLength)
                     End If
 
                 '
                 ' show informational frames
                 '
                 Case CanMsgFrameType.Info
-                    Select Case (CType(canMessage(0), CanMsgInfoValue))
+                    Select Case CType(canMessage(0), CanMsgInfoValue)
                         Case CanMsgInfoValue.Start
                             Console.WriteLine("CAN started...")
                         Case CanMsgInfoValue.Stop
@@ -450,7 +443,7 @@ Module CanConNet4
                 ' show error frames
                 '
                 Case CanMsgFrameType.Error
-                    Select Case (CType(canMessage(0), CanMsgError))
+                    Select Case CType(canMessage(0), CanMsgError)
                         Case CanMsgError.Stuff
                             Console.WriteLine("stuff error...")
                         Case CanMsgError.Form
@@ -472,7 +465,7 @@ Module CanConNet4
         End Sub
 
         ''' <summary>
-        ''' Demonstrate reading messages via MsgReader:ReadMessages() function
+        ''' Demonstrate reading messages via MsgReader.ReadMessages() function
         ''' </summary>
         Private Sub ReadMultipleMsgsViaReadMessages()
             If (mReader Is Nothing) Or
@@ -494,7 +487,7 @@ Module CanConNet4
         End Sub
 
         ''' <summary>
-        ''' Demonstrate reading messages via MsgReader:ReadMessage() function
+        ''' Demonstrate reading messages via MsgReader.ReadMessage() function
         ''' </summary>
         Private Sub ReadMsgsViaReadMessage()
             If (mReader Is Nothing) Or
@@ -506,7 +499,7 @@ Module CanConNet4
 
             Do While (0 = mMustQuit)
                 ' Wait 100 msec for a message reception
-                If (mRxEvent.WaitOne(100, False)) Then
+                If mRxEvent.WaitOne(100, False) Then
                     ' read a CAN message from the receive FIFO
                     Do While (mReader.ReadMessage(canMessage))
                         PrintMessage(canMessage)
@@ -516,7 +509,7 @@ Module CanConNet4
         End Sub
 
         ''' <summary>
-        '''   This method Is the works as receive thread.
+        '''   This method is the entry point of the receive thread.
         ''' </summary>
         Public Shared Sub ReceiveThreadFunc(context As Object)
 
@@ -534,7 +527,7 @@ Module CanConNet4
 #Region "Utility methods"
 
         ''' <summary>
-        '''   Finalizes the application 
+        '''   Finalizes the application
         ''' </summary>
         Private Sub FinalizeApp()
             '
@@ -544,14 +537,13 @@ Module CanConNet4
             ' Dispose message reader
             DisposeVciObject(mReader)
 
-            ' Dispose message writer 
+            ' Dispose message writer
             DisposeVciObject(mWriter)
 
-            // Dispose CAN scheduler
-            If (null! = mCanSched) Then
-            {
-                DisposeVciObject(mCanSched);
-            }
+            ' Dispose CAN scheduler
+            If Nothing IsNot mCanSched Then
+                DisposeVciObject(mCanSched)
+            End If
 
             ' Dispose CAN channel
             DisposeVciObject(mCanChn)
@@ -571,13 +563,13 @@ Module CanConNet4
         '''   Reference to the object to be disposed.
         ''' </param>
         ''' <remarks>
-        '''   The VCI interfaces provide access to native driver resources. 
-        '''   Because the .NET garbage collector Is only designed to manage memory, 
-        '''   but Not native OS And driver resources the application itself Is 
-        '''   responsible to release these resources via calling 
-        '''   IDisposable.Dispose() for the obects obtained from the VCI API 
-        '''   when these are no longer needed. 
-        '''   Otherwise native memory And resource leaks may occure.  
+        '''   The VCI interfaces provide access to native driver resources.
+        '''   Because the .NET garbage collector is only designed to manage memory,
+        '''   but not native OS and driver resources the application itself is
+        '''   responsible to release these resources via calling
+        '''   IDisposable.Dispose() for the obects obtained from the VCI API
+        '''   when these are no longer needed.
+        '''   Otherwise native memory and resource leaks may occure.
         ''' </remarks>
         Private Shared Sub DisposeVciObject(ByVal obj As Object)
             If obj IsNot Nothing Then
