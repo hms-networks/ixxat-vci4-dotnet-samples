@@ -268,7 +268,10 @@ namespace DeviceEnumerator
         item.SubItems.Add(i.HardwareVersion.ToString());
 
         item.SubItems.Add(i.DeviceClass.ToString());
-        item.SubItems.Add(i.UniqueHardwareId.ToString());
+
+        object serialNumberGuid = i.UniqueHardwareId;
+        string serialNumberText = GetSerialNumberText(ref serialNumberGuid);
+        item.SubItems.Add(serialNumberText);
         item.SubItems.Add(i.Description);
         item.SubItems.Add(i.Manufacturer);
 
@@ -278,6 +281,73 @@ namespace DeviceEnumerator
       }
 
       this.deviceList.EndUpdate();
+    }
+
+    /// <summary>
+    /// Returns the UniqueHardwareID GUID number as string which
+    /// shows the serial number.
+    /// Note: This function will be obsolete in later version of the VCI.
+    /// Until VCI Version 3.1.4.1784 there is a bug in the .NET API which
+    /// returns always the GUID of the interface. In later versions there
+    /// the serial number itself will be returned by the UniqueHardwareID property.
+    /// </summary>
+    /// <param name="serialNumberGuid">Data read from the VCI.</param>
+    /// <returns>The GUID as string or if possible the  serial number as string.</returns>
+    static string GetSerialNumberText(ref object serialNumberGuid)
+    {
+      string resultText;
+
+      // check if the object is really a GUID type
+      if (serialNumberGuid.GetType() == typeof(System.Guid))
+      {
+        // convert the object type to a GUID
+        System.Guid tempGuid = (System.Guid)serialNumberGuid;
+
+        // copy the data into a byte array
+        byte[] byteArray = tempGuid.ToByteArray();
+
+        // serial numbers starts always with "HW"
+        if (((char)byteArray[0] == 'H') && ((char)byteArray[1] == 'W'))
+        {
+          // run a loop and add the byte data as char to the result string
+          resultText = "";
+          int i = 0;
+          while (true)
+          {
+            // the string stops with a zero
+            if (byteArray[i] != 0)
+              resultText += (char)byteArray[i];
+            else
+              break;
+            i++;
+
+            // stop also when all bytes are converted to the string
+            // but this should never happen
+            if (i == byteArray.Length)
+              break;
+          }
+        }
+        else
+        {
+          // if the data did not start with "HW" convert only the GUID to a string
+          resultText = serialNumberGuid.ToString();
+        }
+      }
+      else
+      {
+        // if the data is not a GUID convert it to a string
+        string tempString = (string) (string) serialNumberGuid;
+        resultText = "";
+        for (int i=0; i < tempString.Length; i++)
+        {
+          if (tempString[i] != 0)
+            resultText += tempString[i];
+          else
+            break;
+        }
+      }
+
+      return resultText;
     }
   }
 }

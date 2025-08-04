@@ -226,7 +226,8 @@ Module VbCanConNet4
                     Console.WriteLine(" CtrlType   : {0}", info.ControllerType)
 
                     ' show the device name and serial number
-                    Dim serialNumberText As String = If(mDevice.UniqueHardwareId.ToString(), "<device id not available>")
+                    Dim serialNumberGuid As Object = mDevice.UniqueHardwareId
+                    Dim serialNumberText = GetSerialNumberText(serialNumberGuid)
                     Console.WriteLine(" Interface    : " + mDevice.Description)
                     Console.WriteLine(" Serial number: " + serialNumberText)
                     succeeded = True
@@ -525,6 +526,65 @@ Module VbCanConNet4
 #End Region
 
 #Region "Utility methods"
+
+        ''' <summary>
+        ''' Returns the UniqueHardwareID GUID number as string which
+        ''' shows the serial number.
+        ''' Note: This function will be obsolete in later version of the VCI.
+        ''' Until VCI Version 3.1.4.1784 there is a bug in the .NET API which
+        ''' returns always the GUID of the interface. In later versions there
+        ''' the serial number itself will be returned by the UniqueHardwareID property.
+        ''' </summary>
+        ''' <param name="serialNumberGuid">Data read from the VCI.</param>
+        ''' <returns>The GUID as string or if possible the  serial number as string.</returns>
+        Private Shared Function GetSerialNumberText(ByRef serialNumberGuid As Object) As String
+          Dim resultText As String
+
+          ' check if the object is really a GUID type
+          If serialNumberGuid.GetType() Is GetType(Guid) Then
+            ' convert the object type to a GUID
+            Dim tempGuid As Guid = serialNumberGuid
+
+            ' copy the data into a byte array
+            Dim byteArray As Byte() = tempGuid.ToByteArray()
+
+            ' serial numbers starts always with "HW"
+            If Microsoft.VisualBasic.ChrW(byteArray(0)) = "H"c AndAlso Microsoft.VisualBasic.ChrW(byteArray(1)) = "W"c Then
+              ' run a loop and add the byte data as char to the result string
+              resultText = ""
+              Dim i = 0
+              While True
+                ' the string stops with a zero
+                If byteArray(i) <> 0 Then
+                  resultText += Microsoft.VisualBasic.ChrW(byteArray(i))
+                Else
+                  Exit While
+                End If
+                i += 1
+
+                ' stop also when all bytes are converted to the string
+                ' but this should never happen
+                If i = byteArray.Length Then Exit While
+              End While
+            Else
+              ' if the data did not start with "HW" convert only the GUID to a string
+              resultText = serialNumberGuid.ToString()
+            End If
+          Else
+            ' if the data is not a GUID convert it to a string
+            Dim tempString = CStr(serialNumberGuid)
+            resultText = ""
+            For i = 0 To tempString.Length - 1
+              If Microsoft.VisualBasic.Asc(tempString(i)) <> 0 Then
+                resultText += tempString(i)
+              Else
+                Exit For
+              End If
+            Next
+          End If
+
+          Return resultText
+        End Function
 
         ''' <summary>
         '''   Finalizes the application
