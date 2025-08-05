@@ -46,7 +46,7 @@ Module VbCanFdConNet
         ''' <summary>
         '''   Reference to the CAN message scheduler.
         ''' </summary>
-        Private mCanSched As Ixxat.Vci4.Bal.Can.ICanScheduler = Nothing
+        Private mCanSched As Ixxat.Vci4.Bal.Can.ICanScheduler2 = Nothing
 
         ''' <summary>
         '''   Reference to the message writer of the CAN message channel.
@@ -287,7 +287,7 @@ Module VbCanFdConNet
                 '
                 ' Open a message channel for the CAN controller
                 '
-                mCanChn = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanChannel))
+                mCanChn = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanChannel2))
 
                 If mCanChn IsNot Nothing Then
                     '
@@ -297,7 +297,7 @@ Module VbCanFdConNet
                         '
                         ' Open the scheduler of the CAN controller
                         '
-                        mCanSched = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanScheduler))
+                        mCanSched = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanScheduler2))
                         If mCanSched IsNot Nothing Then
                             ' take scheduler into defined state (no messages, running)
                             mCanSched.Reset()
@@ -332,7 +332,7 @@ Module VbCanFdConNet
                     '
                     ' Open the CAN controller
                     '
-                    mCanCtl = Bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanControl))
+                    mCanCtl = bal.OpenSocket(canNo, GetType(Ixxat.Vci4.Bal.Can.ICanControl2))
                     If mCanCtl IsNot Nothing Then
 
                         ' Initialize the CAN controller
@@ -388,7 +388,7 @@ Module VbCanFdConNet
             End If
 
             Dim factory As IMessageFactory = VciServer.Instance().MsgFactory
-            Dim canMsg As ICanMessage = factory.CreateMsg(GetType(Ixxat.Vci4.Bal.Can.ICanMessage))
+            Dim canMsg As ICanMessage2 = factory.CreateMsg(GetType(Ixxat.Vci4.Bal.Can.ICanMessage2))
 
             canMsg.TimeStamp = 0
             canMsg.Identifier = &H100
