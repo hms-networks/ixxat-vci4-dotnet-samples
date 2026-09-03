@@ -10,8 +10,6 @@
 '            all rights reserved
 '----------------------------------------------------------------------------
 
-Imports System
-Imports System.Collections
 Imports System.Threading
 Imports Ixxat.Vci4
 Imports Ixxat.Vci4.Bal
@@ -530,61 +528,51 @@ Module VbCanConNet4
         ''' <summary>
         ''' Returns the UniqueHardwareID GUID number as string which
         ''' shows the serial number.
-        ''' Note: This function will be obsolete in later version of the VCI.
-        ''' Until VCI Version 3.1.4.1784 there is a bug in the .NET API which
-        ''' returns always the GUID of the interface. In later versions there
-        ''' the serial number itself will be returned by the UniqueHardwareID property.
+        ''' The function checks if the GUID contains printable characters 
+        ''' and returns the serial number as string if possible.
+        ''' If the serial number Is Not a GUID a simple string conversion
+        ''' is done.
         ''' </summary>
-        ''' <param name="serialNumberGuid">Data read from the VCI.</param>
+        ''' <paramname="serialNumberGuid">Data read from the VCI.</param>
         ''' <returns>The GUID as string or if possible the  serial number as string.</returns>
         Private Shared Function GetSerialNumberText(ByRef serialNumberGuid As Object) As String
-          Dim resultText As String
+            Dim resultText As String
 
-          ' check if the object is really a GUID type
-          If serialNumberGuid.GetType() Is GetType(Guid) Then
-            ' convert the object type to a GUID
-            Dim tempGuid As Guid = serialNumberGuid
+            If (serialNumberGuid.GetType() = GetType(System.Guid)) Then
 
-            ' copy the data into a byte array
-            Dim byteArray As Byte() = tempGuid.ToByteArray()
+                ' treat GUID as string and find last non 0 character
+                Dim guid As Guid = serialNumberGuid
+                Dim bytes As Byte() = guid.ToByteArray()
 
-            ' serial numbers starts always with "HW"
-            If Microsoft.VisualBasic.ChrW(byteArray(0)) = "H"c AndAlso Microsoft.VisualBasic.ChrW(byteArray(1)) = "W"c Then
-              ' run a loop and add the byte data as char to the result string
-              resultText = ""
-              Dim i = 0
-              While True
-                ' the string stops with a zero
-                If byteArray(i) <> 0 Then
-                  resultText += Microsoft.VisualBasic.ChrW(byteArray(i))
-                Else
-                  Exit While
-                End If
-                i += 1
+                ' find last non 0 character
+                Dim last As Integer
+                For last = bytes.Length - 1 To 0 Step -1
+                    If (bytes(last) <> 0) Then
+                        ' found last non 0 character
+                        Exit For
+                    End If
+                Next
 
-                ' stop also when all bytes are converted to the string
-                ' but this should never happen
-                If i = byteArray.Length Then Exit While
-              End While
+                resultText = ""
+                For pos As Integer = 0 To last
+                    Dim ch As Char = Microsoft.VisualBasic.ChrW(bytes(pos))
+
+                    If (Not Char.IsControl(ch)) Then
+                        resultText += ch
+                    Else
+                        ' if the character is not printable
+                        ' we'll convert it to a hex string
+                        resultText += "%" + AscW(ch).ToString("X2")
+                    End If
+                Next
             Else
-              ' if the data did not start with "HW" convert only the GUID to a string
-              resultText = serialNumberGuid.ToString()
+                ' if the data is not a GUID convert it to a string
+                resultText = CStr(serialNumberGuid)
             End If
-          Else
-            ' if the data is not a GUID convert it to a string
-            Dim tempString = CStr(serialNumberGuid)
-            resultText = ""
-            For i = 0 To tempString.Length - 1
-              If Microsoft.VisualBasic.Asc(tempString(i)) <> 0 Then
-                resultText += tempString(i)
-              Else
-                Exit For
-              End If
-            Next
-          End If
 
-          Return resultText
+            Return resultText
         End Function
+
 
         ''' <summary>
         '''   Finalizes the application
