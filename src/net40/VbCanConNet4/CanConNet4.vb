@@ -533,7 +533,7 @@ Module VbCanConNet4
         ''' If the serial number Is Not a GUID a simple string conversion
         ''' is done.
         ''' </summary>
-        ''' <paramname="serialNumberGuid">Data read from the VCI.</param>
+        ''' <param name="serialNumberGuid">Data read from the VCI.</param>
         ''' <returns>The GUID as string or if possible the  serial number as string.</returns>
         Private Shared Function GetSerialNumberText(ByRef serialNumberGuid As Object) As String
             Dim resultText As String
