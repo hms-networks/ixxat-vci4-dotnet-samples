@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>VbCanFdConNet</RootNamespace>
+    <TargetFramework>net9.0-windows8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ixxat.Vci4" Version="4.1.13" />
+  </ItemGroup>
+
+</Project>
