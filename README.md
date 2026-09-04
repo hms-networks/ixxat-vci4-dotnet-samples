@@ -12,7 +12,7 @@ for details see https://www.ixxat.com/technical-support/support/windows-driver-s
 
 ## Prerequisites
 
-  - Visual Studio 2022
+  - Visual Studio 2026 or VS2022 
   - a valid VCI4 installation
 
 ## Usage
@@ -24,6 +24,8 @@ Open the solution in src/Samples.sln and compile/run projects.
     \src\net40     projects targeting .NET framework (net48)
     \src\net50     projects targeting .NET core (net5.0-windows)
     \src\net60     projects targeting .NET core (net6.0-windows)
+	\src\net9.0    projects targeting .NET core (net9.0-windows)
+	\src\net10.0   projects targeting .NET core (net10.0-windows). Needs VS2026 to compile.
 
 ### Examples
 
